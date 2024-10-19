@@ -1,7 +1,5 @@
 int button = 13; //button
 int adcpin = 26; //microphone
-unsigned long target_time;
-
 void setup() 
 {
   // put your setup code here, to run once:
@@ -10,12 +8,12 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
+uint16_t miclist[16000];
 
 void loop() 
 {
   // put your main code here, to run repeatedly:
   analogReadResolution(16);
-  int miclist[16000];
   int buttonstate = digitalRead(button);
   if (buttonstate != 1)
   {
@@ -23,26 +21,25 @@ void loop()
     delay(1000);
     digitalWrite(LED_BUILTIN,LOW);
     delay(500);
-    target_time = micros();
+    unsigned long Target = micros() + 125;
     for (int i = 0; i < 16000; i++)
     {
       int micvalue = analogRead(adcpin);
       miclist[i] = micvalue;
-      target_time = target_time + 125;
-      while(micros() < target_time);
+      while (micros() < Target);
+      Target = Target + 125;
     }
-    for (int i = 0; i < 16000; i++)
+    for (int i = 0; i < 15999; i++)
     {
-      if (i != 15999)
+      if (i != 15998)
       {
         Serial.print(miclist[i]);
         Serial.print(" ");
       }
       else
       {
-        Serial.println(miclist[i]);
+        Serial.println(miclist[15999]);
       }
     }
   }
-  delay(100);
 }
